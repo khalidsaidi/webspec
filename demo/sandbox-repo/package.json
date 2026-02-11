@@ -1,0 +1,10 @@
+{
+  "name": "webspec-sandbox",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "echo \"(fixture)\"",
+    "build": "echo \"(fixture)\""
+  }
+}
