@@ -158,10 +158,10 @@ export default function Home() {
           Workspace: <span className="font-mono">{workspaceLabel}</span>
         </div>
         <div className="text-xs opacity-70">
-          Selected kernel: <span className="font-mono">{selectedKernel}</span>
+          Selected kernel: <span className="font-mono break-all">{selectedKernel}</span>
         </div>
         <div className="text-xs opacity-70">
-          Supported kernels ({supportedKernels.length || 0}): <span className="font-mono">{supportedKernelsLabel}</span>
+          Supported kernels ({supportedKernels.length || 0}): <span className="font-mono break-all">{supportedKernelsLabel}</span>
         </div>
         <div className="text-xs opacity-70">{kernelHint}</div>
         <div className="text-xs opacity-70">{modeHint}</div>
@@ -177,11 +177,18 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-          <Card className="p-3 space-y-2">
+          <Card className="min-w-0 p-3 space-y-2">
             <div className="text-xs font-semibold uppercase opacity-70">Kernel</div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-1 gap-2">
               {(supportedKernels.length > 0 ? supportedKernels : [selectedKernel]).map((v) => (
-                <Button key={v} variant={selectedKernel === v ? "default" : "secondary"} size="sm" onClick={() => setSelectedKernel(v)}>
+                <Button
+                  key={v}
+                  variant={selectedKernel === v ? "default" : "secondary"}
+                  size="sm"
+                  className="h-auto w-full justify-start px-2 py-2 text-left text-xs whitespace-normal break-all"
+                  onClick={() => setSelectedKernel(v)}
+                  title={v}
+                >
                   {v}
                 </Button>
               ))}
@@ -239,7 +246,7 @@ export default function Home() {
                       <div className="text-lg font-semibold">{p.title}</div>
                       <div className="text-sm opacity-80">{p.summary}</div>
                       <div className="text-xs opacity-70">
-                        Kernel: <span className="font-mono">{p.intent?.target ?? "(unknown)"}</span>
+                        Kernel: <span className="font-mono break-all">{p.intent?.target ?? "(unknown)"}</span>
                       </div>
                     </div>
                     <Badge variant={p.compile.ok ? "default" : "destructive"}>
