@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,12 @@ type ChangeSize = "tiny" | "small" | "medium" | "large";
 type DiagnosticEntry = { code?: string; message: string };
 type RiskReason = { title: string; evidence: string; suggestion: string; strength: number };
 type Verification = { ok: boolean; diagnostics: DiagnosticEntry[] };
+type StatusResponse = {
+  mode: "local" | "demo";
+  workspaceLabel: string;
+  selectedKernel?: string;
+  supportedKernels?: string[];
+};
 
 type Proposal = {
   id: string;
@@ -31,6 +37,8 @@ function pct(x: number) {
 export default function Home() {
   const [mode, setMode] = useState<"local" | "demo">("local");
   const [workspaceLabel, setWorkspaceLabel] = useState<string>("(loading)");
+  const [selectedKernel, setSelectedKernel] = useState<string>("(loading)");
+  const [supportedKernels, setSupportedKernels] = useState<string[]>([]);
   const [goalText, setGoalText] = useState<string>(
     "Add a playground page so I can test UI patterns. Keep it small, no deps, no config changes."
   );
@@ -51,12 +59,29 @@ export default function Home() {
     return "Local mode reads a workspace path on your machine (default: demo/sandbox-repo).";
   }, [mode]);
 
+  const kernelHint = useMemo(() => {
+    if (supportedKernels.length <= 1) {
+      return "Only one kernel is currently available in this build.";
+    }
+    return `${supportedKernels.length} kernels are available.`;
+  }, [supportedKernels]);
+  const supportedKernelsLabel = useMemo(
+    () => (supportedKernels.length > 0 ? supportedKernels.join(", ") : "(loading)"),
+    [supportedKernels]
+  );
+
   async function refreshStatus() {
     const res = await fetch("/api/status", { cache: "no-store" });
-    const json = await res.json();
+    const json = (await res.json()) as StatusResponse;
     setMode(json.mode);
     setWorkspaceLabel(json.workspaceLabel);
+    setSelectedKernel(json.selectedKernel ?? "(unknown)");
+    setSupportedKernels(json.supportedKernels ?? []);
   }
+
+  useEffect(() => {
+    void refreshStatus();
+  }, []);
 
   async function runPropose() {
     setLoading(true);
@@ -126,6 +151,13 @@ export default function Home() {
         <div className="text-xs opacity-70">
           Workspace: <span className="font-mono">{workspaceLabel}</span>
         </div>
+        <div className="text-xs opacity-70">
+          Selected kernel: <span className="font-mono">{selectedKernel}</span>
+        </div>
+        <div className="text-xs opacity-70">
+          Supported kernels ({supportedKernels.length || 0}): <span className="font-mono">{supportedKernelsLabel}</span>
+        </div>
+        <div className="text-xs opacity-70">{kernelHint}</div>
         <div className="text-xs opacity-70">{modeHint}</div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={refreshStatus}>Refresh status</Button>
@@ -298,6 +330,10 @@ export default function Home() {
               You describe a goal, WebSpec proposes a few implementation options, and only options that compile to a bounded plan are shown.
               Then WebSpec generates a patch and verifies invariants before you apply anything.
             </p>
+            <ul className="ml-5 list-disc space-y-1 opacity-80">
+              <li><strong>Current kernel</strong>: <code>{selectedKernel}</code></li>
+              <li><strong>Supported kernels</strong>: {supportedKernels.length}</li>
+            </ul>
             <ul className="ml-5 list-disc space-y-1 opacity-80">
               <li><strong>Local mode</strong>: points at a workspace path on your machine.</li>
               <li><strong>Vercel demo mode</strong>: uses an embedded demo repo snapshot (no disk writes).</li>

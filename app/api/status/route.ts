@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { DEFAULT_KERNEL, SUPPORTED_KERNELS } from "@webspec/core";
 
 function computeMode(): "local" | "demo" {
   const explicit = process.env.WEBSPEC_MODE;
@@ -19,5 +20,7 @@ export async function GET() {
     mode,
     workspaceLabel: workspaceLabel(mode),
     allowWrite: process.env.WEBSPEC_ALLOW_WRITE === "1",
+    selectedKernel: DEFAULT_KERNEL,
+    supportedKernels: SUPPORTED_KERNELS,
   });
 }

@@ -13,7 +13,9 @@ export type GoalSpec = {
     text: string;
     constraints?: GoalConstraints;
 };
-export type TargetKernel = "react-vite-shadcn-tailwind4";
+export declare const SUPPORTED_KERNELS: readonly ["react-vite-shadcn-tailwind4"];
+export type TargetKernel = (typeof SUPPORTED_KERNELS)[number];
+export declare const DEFAULT_KERNEL: TargetKernel;
 export type PageKind = "static" | "form" | "list" | "dashboard";
 export type IntentPage = {
     name: string;
