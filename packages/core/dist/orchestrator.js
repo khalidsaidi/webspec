@@ -1,11 +1,29 @@
 import { GoalSpecSchema, IntentSpecSchema } from "./schemas.js";
+import { DEFAULT_KERNEL } from "./types.js";
 import { proposeIntents } from "./proposer.js";
 import { compileViteReactIntent } from "./kernel_vite.js";
+import { compileNextAppRouterIntent } from "./kernel_next.js";
 import { assessRisk } from "./risk.js";
 import { applyPlanToFileMap, buildUnifiedPatch, collectTouchedPaths } from "./patch.js";
 import { verifyAfterState } from "./verify.js";
 import { readFileMap } from "./workspace.js";
 import { SANDBOX_SNAPSHOT } from "./demo/sandboxSnapshot.js";
+async function compileIntent(intent, wsReader) {
+    switch (intent.target) {
+        case "react-vite-shadcn-tailwind4":
+            return compileViteReactIntent(intent, wsReader);
+        case "nextjs-app-router-shadcn-tailwind4":
+            return compileNextAppRouterIntent(intent, wsReader);
+        default:
+            return {
+                diagnostics: [{
+                        level: "error",
+                        code: "E_UNKNOWN_KERNEL",
+                        message: `Unsupported kernel: ${intent.target}`,
+                    }],
+            };
+    }
+}
 export async function propose(req) {
     const diagnostics = [];
     const parsed = GoalSpecSchema.safeParse(req.goal);
@@ -19,6 +37,7 @@ export async function propose(req) {
         };
     }
     const profile = req.profile ?? "balanced";
+    const selectedKernel = parsed.data.targetKernel ?? DEFAULT_KERNEL;
     const wsReader = req.workspace?.reader ?? {
         rootLabel: "(demo snapshot)",
         async exists(p) { return Object.prototype.hasOwnProperty.call(SANDBOX_SNAPSHOT, p); },
@@ -29,7 +48,7 @@ export async function propose(req) {
             return v;
         }
     };
-    const candidates = proposeIntents(req.goal);
+    const candidates = proposeIntents(parsed.data, selectedKernel);
     const proposals = [];
     for (const c of candidates) {
         const intentOk = IntentSpecSchema.safeParse(c.intent);
@@ -47,7 +66,7 @@ export async function propose(req) {
             });
             continue;
         }
-        const compiled = await compileViteReactIntent(c.intent, wsReader);
+        const compiled = await compileIntent(c.intent, wsReader);
         const plan = compiled.plan;
         const proposal = {
             id: c.id,

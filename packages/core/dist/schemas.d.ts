@@ -19,6 +19,7 @@ export declare const GoalSpecSchema: z.ZodObject<{
     featureId: z.ZodOptional<z.ZodString>;
     title: z.ZodOptional<z.ZodString>;
     text: z.ZodString;
+    targetKernel: z.ZodOptional<z.ZodEnum<["react-vite-shadcn-tailwind4", "nextjs-app-router-shadcn-tailwind4"]>>;
     constraints: z.ZodOptional<z.ZodObject<{
         changeSize: z.ZodOptional<z.ZodEnum<["tiny", "small", "medium", "large"]>>;
         newDependencies: z.ZodOptional<z.ZodEnum<["avoid", "allow", "prefer"]>>;
@@ -39,6 +40,7 @@ export declare const GoalSpecSchema: z.ZodObject<{
     text: string;
     featureId?: string | undefined;
     title?: string | undefined;
+    targetKernel?: "react-vite-shadcn-tailwind4" | "nextjs-app-router-shadcn-tailwind4" | undefined;
     constraints?: {
         changeSize?: "tiny" | "small" | "medium" | "large" | undefined;
         newDependencies?: "avoid" | "allow" | "prefer" | undefined;
@@ -49,6 +51,7 @@ export declare const GoalSpecSchema: z.ZodObject<{
     text: string;
     featureId?: string | undefined;
     title?: string | undefined;
+    targetKernel?: "react-vite-shadcn-tailwind4" | "nextjs-app-router-shadcn-tailwind4" | undefined;
     constraints?: {
         changeSize?: "tiny" | "small" | "medium" | "large" | undefined;
         newDependencies?: "avoid" | "allow" | "prefer" | undefined;
@@ -134,7 +137,7 @@ export declare const IntentSpecSchema: z.ZodObject<{
         id: string;
         summary?: string | undefined;
     }>;
-    target: z.ZodLiteral<"react-vite-shadcn-tailwind4">;
+    target: z.ZodEnum<["react-vite-shadcn-tailwind4", "nextjs-app-router-shadcn-tailwind4"]>;
     intent: z.ZodObject<{
         pages: z.ZodArray<z.ZodObject<{
             name: z.ZodString;
@@ -257,7 +260,7 @@ export declare const IntentSpecSchema: z.ZodObject<{
         id: string;
         summary?: string | undefined;
     };
-    target: "react-vite-shadcn-tailwind4";
+    target: "react-vite-shadcn-tailwind4" | "nextjs-app-router-shadcn-tailwind4";
     intent: {
         pages: {
             title: string;
@@ -288,7 +291,7 @@ export declare const IntentSpecSchema: z.ZodObject<{
         id: string;
         summary?: string | undefined;
     };
-    target: "react-vite-shadcn-tailwind4";
+    target: "react-vite-shadcn-tailwind4" | "nextjs-app-router-shadcn-tailwind4";
     intent: {
         pages: {
             title: string;

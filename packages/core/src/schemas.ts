@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SUPPORTED_KERNELS } from "./types.js";
 
 export const GoalConstraintsSchema = z.object({
   changeSize: z.enum(["tiny", "small", "medium", "large"]).optional(),
@@ -11,6 +12,7 @@ export const GoalSpecSchema = z.object({
   featureId: z.string().min(1).optional(),
   title: z.string().min(1).optional(),
   text: z.string().min(1),
+  targetKernel: z.enum(SUPPORTED_KERNELS).optional(),
   constraints: GoalConstraintsSchema.optional(),
 }).strict();
 
@@ -32,7 +34,7 @@ export const IntentSpecSchema = z.object({
     title: z.string().min(1),
     summary: z.string().optional(),
   }).strict(),
-  target: z.literal("react-vite-shadcn-tailwind4"),
+  target: z.enum(SUPPORTED_KERNELS),
   intent: z.object({
     pages: z.array(IntentPageSchema).min(1),
   }).strict(),

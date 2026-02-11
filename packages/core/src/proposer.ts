@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import type { GoalSpec, GoalConstraints, IntentSpec } from "./types.js";
+import type { GoalSpec, GoalConstraints, IntentSpec, TargetKernel } from "./types.js";
 
 function pickFeatureId(goal: GoalSpec) {
   if (goal.featureId) return goal.featureId;
@@ -27,12 +27,11 @@ function classifyGoal(text: string): RecipeKind {
   return "playground";
 }
 
-export function proposeIntents(goal: GoalSpec): Array<{ id: string; title: string; summary: string; intent: IntentSpec; assumptions: string[] }> {
+export function proposeIntents(goal: GoalSpec, target: TargetKernel): Array<{ id: string; title: string; summary: string; intent: IntentSpec; assumptions: string[] }> {
   const featureId = pickFeatureId(goal);
   const recipe = classifyGoal(goal.text);
 
   const baseTitle = goal.title ?? titleCase(recipe);
-  const target = "react-vite-shadcn-tailwind4" as const;
 
   if (recipe === "feedback") {
     const A: IntentSpec = {
@@ -169,7 +168,7 @@ export function proposeIntents(goal: GoalSpec): Array<{ id: string; title: strin
 
   const A: IntentSpec = {
     feature: { id: featureId, title: `${baseTitle} (playground)`, summary: "A demo page for trying WebSpec outputs." },
-    target: "react-vite-shadcn-tailwind4",
+    target,
     intent: {
       pages: [
         {
@@ -190,7 +189,7 @@ export function proposeIntents(goal: GoalSpec): Array<{ id: string; title: strin
 
   const B: IntentSpec = {
     feature: { id: featureId, title: `${baseTitle} (docs)`, summary: "A /docs page for lightweight documentation." },
-    target: "react-vite-shadcn-tailwind4",
+    target,
     intent: {
       pages: [
         {

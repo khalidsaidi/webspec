@@ -1,8 +1,10 @@
-import type { GoalSpec, Proposal, Mode, Diagnostic, Plan } from "./types.js";
+import type { GoalSpec, Proposal, Mode, Diagnostic, Plan, IntentSpec, TargetKernel } from "./types.js";
 import { GoalSpecSchema, IntentSpecSchema } from "./schemas.js";
 import type { WorkspaceReader, WorkspaceWriter, FileMap } from "./workspace.js";
+import { DEFAULT_KERNEL } from "./types.js";
 import { proposeIntents } from "./proposer.js";
 import { compileViteReactIntent } from "./kernel_vite.js";
+import { compileNextAppRouterIntent } from "./kernel_next.js";
 import { assessRisk } from "./risk.js";
 import { applyPlanToFileMap, buildUnifiedPatch, collectTouchedPaths } from "./patch.js";
 import { verifyAfterState } from "./verify.js";
@@ -38,6 +40,23 @@ export type GenerateResponse = {
   risk?: Proposal["risk"];
 };
 
+async function compileIntent(intent: IntentSpec, wsReader: WorkspaceReader) {
+  switch (intent.target) {
+    case "react-vite-shadcn-tailwind4":
+      return compileViteReactIntent(intent, wsReader);
+    case "nextjs-app-router-shadcn-tailwind4":
+      return compileNextAppRouterIntent(intent, wsReader);
+    default:
+      return {
+        diagnostics: [{
+          level: "error" as const,
+          code: "E_UNKNOWN_KERNEL",
+          message: `Unsupported kernel: ${intent.target}`,
+        }],
+      };
+  }
+}
+
 export async function propose(req: ProposeRequest): Promise<ProposeResponse> {
   const diagnostics: Diagnostic[] = [];
   const parsed = GoalSpecSchema.safeParse(req.goal);
@@ -52,6 +71,7 @@ export async function propose(req: ProposeRequest): Promise<ProposeResponse> {
   }
 
   const profile = req.profile ?? "balanced";
+  const selectedKernel: TargetKernel = parsed.data.targetKernel ?? DEFAULT_KERNEL;
 
   const wsReader = req.workspace?.reader ?? {
     rootLabel: "(demo snapshot)",
@@ -63,7 +83,7 @@ export async function propose(req: ProposeRequest): Promise<ProposeResponse> {
     }
   };
 
-  const candidates = proposeIntents(req.goal);
+  const candidates = proposeIntents(parsed.data, selectedKernel);
   const proposals: Proposal[] = [];
 
   for (const c of candidates) {
@@ -83,7 +103,7 @@ export async function propose(req: ProposeRequest): Promise<ProposeResponse> {
       continue;
     }
 
-    const compiled = await compileViteReactIntent(c.intent, wsReader);
+    const compiled = await compileIntent(c.intent, wsReader);
     const plan = compiled.plan;
 
     const proposal: Proposal = {

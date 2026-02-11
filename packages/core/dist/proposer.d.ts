@@ -1,5 +1,5 @@
-import type { GoalSpec, IntentSpec } from "./types.js";
-export declare function proposeIntents(goal: GoalSpec): Array<{
+import type { GoalSpec, IntentSpec, TargetKernel } from "./types.js";
+export declare function proposeIntents(goal: GoalSpec, target: TargetKernel): Array<{
     id: string;
     title: string;
     summary: string;

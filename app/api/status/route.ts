@@ -13,6 +13,14 @@ function workspaceLabel(mode: "local" | "demo") {
   return process.env.WEBSPEC_WORKSPACE_PATH || "demo/sandbox-repo";
 }
 
+function computeSelectedKernel() {
+  const explicit = process.env.WEBSPEC_DEFAULT_KERNEL;
+  if (explicit && SUPPORTED_KERNELS.includes(explicit as (typeof SUPPORTED_KERNELS)[number])) {
+    return explicit as (typeof SUPPORTED_KERNELS)[number];
+  }
+  return DEFAULT_KERNEL;
+}
+
 export async function GET() {
   const mode = computeMode();
   return NextResponse.json({
@@ -20,7 +28,7 @@ export async function GET() {
     mode,
     workspaceLabel: workspaceLabel(mode),
     allowWrite: process.env.WEBSPEC_ALLOW_WRITE === "1",
-    selectedKernel: DEFAULT_KERNEL,
+    selectedKernel: computeSelectedKernel(),
     supportedKernels: SUPPORTED_KERNELS,
   });
 }

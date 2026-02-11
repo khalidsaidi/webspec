@@ -22,11 +22,10 @@ function classifyGoal(text) {
         return "settings";
     return "playground";
 }
-export function proposeIntents(goal) {
+export function proposeIntents(goal, target) {
     const featureId = pickFeatureId(goal);
     const recipe = classifyGoal(goal.text);
     const baseTitle = goal.title ?? titleCase(recipe);
-    const target = "react-vite-shadcn-tailwind4";
     if (recipe === "feedback") {
         const A = {
             feature: { id: featureId, title: `${baseTitle} (minimal)`, summary: "User feedback page (form placeholder) with small footprint." },
@@ -153,7 +152,7 @@ export function proposeIntents(goal) {
     }
     const A = {
         feature: { id: featureId, title: `${baseTitle} (playground)`, summary: "A demo page for trying WebSpec outputs." },
-        target: "react-vite-shadcn-tailwind4",
+        target,
         intent: {
             pages: [
                 {
@@ -173,7 +172,7 @@ export function proposeIntents(goal) {
     };
     const B = {
         feature: { id: featureId, title: `${baseTitle} (docs)`, summary: "A /docs page for lightweight documentation." },
-        target: "react-vite-shadcn-tailwind4",
+        target,
         intent: {
             pages: [
                 {

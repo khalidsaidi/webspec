@@ -14,10 +14,14 @@ export type GoalSpec = {
   featureId?: string;
   title?: string;
   text: string;
+  targetKernel?: TargetKernel;
   constraints?: GoalConstraints;
 };
 
-export const SUPPORTED_KERNELS = ["react-vite-shadcn-tailwind4"] as const;
+export const SUPPORTED_KERNELS = [
+  "react-vite-shadcn-tailwind4",
+  "nextjs-app-router-shadcn-tailwind4",
+] as const;
 export type TargetKernel = (typeof SUPPORTED_KERNELS)[number];
 export const DEFAULT_KERNEL: TargetKernel = SUPPORTED_KERNELS[0];
 

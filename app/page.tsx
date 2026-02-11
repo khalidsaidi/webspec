@@ -25,6 +25,7 @@ type Proposal = {
   id: string;
   title: string;
   summary: string;
+  intent?: { target?: string };
   assumptions: string[];
   compile: { ok: boolean; diagnostics: DiagnosticEntry[]; plan?: unknown };
   risk?: { profile: string; score: number; label: string; action: string; reasons: RiskReason[] };
@@ -69,6 +70,10 @@ export default function Home() {
     () => (supportedKernels.length > 0 ? supportedKernels.join(", ") : "(loading)"),
     [supportedKernels]
   );
+  const selectedKernelReady = useMemo(
+    () => supportedKernels.includes(selectedKernel),
+    [supportedKernels, selectedKernel]
+  );
 
   async function refreshStatus() {
     const res = await fetch("/api/status", { cache: "no-store" });
@@ -95,6 +100,7 @@ export default function Home() {
         body: JSON.stringify({
           goal: {
             text: goalText,
+            targetKernel: selectedKernelReady ? selectedKernel : undefined,
             constraints: { changeSize, newDependencies: newDeps, configChanges }
           }
         }),
@@ -170,7 +176,17 @@ export default function Home() {
           <Textarea value={goalText} onChange={(e) => setGoalText(e.target.value)} rows={5} />
         </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <Card className="p-3 space-y-2">
+            <div className="text-xs font-semibold uppercase opacity-70">Kernel</div>
+            <div className="flex flex-wrap gap-2">
+              {(supportedKernels.length > 0 ? supportedKernels : [selectedKernel]).map((v) => (
+                <Button key={v} variant={selectedKernel === v ? "default" : "secondary"} size="sm" onClick={() => setSelectedKernel(v)}>
+                  {v}
+                </Button>
+              ))}
+            </div>
+          </Card>
           <Card className="p-3 space-y-2">
             <div className="text-xs font-semibold uppercase opacity-70">Change size</div>
             <div className="flex flex-wrap gap-2">
@@ -222,6 +238,9 @@ export default function Home() {
                     <div className="space-y-1">
                       <div className="text-lg font-semibold">{p.title}</div>
                       <div className="text-sm opacity-80">{p.summary}</div>
+                      <div className="text-xs opacity-70">
+                        Kernel: <span className="font-mono">{p.intent?.target ?? "(unknown)"}</span>
+                      </div>
                     </div>
                     <Badge variant={p.compile.ok ? "default" : "destructive"}>
                       {p.compile.ok ? "COMPILES" : "BLOCKED"}

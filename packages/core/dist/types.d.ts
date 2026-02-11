@@ -11,9 +11,10 @@ export type GoalSpec = {
     featureId?: string;
     title?: string;
     text: string;
+    targetKernel?: TargetKernel;
     constraints?: GoalConstraints;
 };
-export declare const SUPPORTED_KERNELS: readonly ["react-vite-shadcn-tailwind4"];
+export declare const SUPPORTED_KERNELS: readonly ["react-vite-shadcn-tailwind4", "nextjs-app-router-shadcn-tailwind4"];
 export type TargetKernel = (typeof SUPPORTED_KERNELS)[number];
 export declare const DEFAULT_KERNEL: TargetKernel;
 export type PageKind = "static" | "form" | "list" | "dashboard";
